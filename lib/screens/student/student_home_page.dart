@@ -1,0 +1,400 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../services/menu_services.dart';
+import '../../models/category.dart';
+import '../../models/menu_item.dart';
+import '../../services/cart_service.dart';
+import '../../services/address_service.dart';
+import '../../models/address_model.dart';
+import 'student_profile_page.dart';
+import 'student_address_page.dart';
+import 'student_main_page.dart';
+
+class HomeScreen extends StatefulWidget {
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String _selectedAddress = '';
+  final TextEditingController _searchController = TextEditingController();
+  String _categoryId = 'cat_rice';
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final menuService = Provider.of<MenuService>(context, listen: false);
+      final addressService = Provider.of<AddressService>(
+          context, listen: false);
+
+      final menuItems = menuService.menuItems;
+      menuService.getItemsByCategory(menuItems, _categoryId);
+
+      final List<String> popularItemIds = [
+        '408wqRpjxhze9t0wLO26',
+        '6WKCpJ6Liw8sDkJkvP7X',
+        '7im7G4fO3NXP4F2L4RRK',
+        '0P4YOGHbq9S1akpVDjwt',
+        'IYtmAWqO9RaUEPAr1qsq',
+        'J09AhL4Y4brhxYTEuHTz',
+        'A66yziEDqcEGuvEMcx75',
+      ];
+      menuService.getPopularItems(popularItemIds);
+
+      final addresses = addressService.addresses;
+      if (addresses.isNotEmpty) {
+        setState(() {
+          _selectedAddress = addresses.first.title;
+        });
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final addressService = Provider.of<AddressService>(context);
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.grey[600],
+        title: Text('Home',
+            style: TextStyle(
+                color: Colors.white, fontWeight: FontWeight.bold)),
+        elevation: 0,
+        iconTheme: IconThemeData(color: Colors.white),
+      ),
+      backgroundColor: Colors.grey[200],
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildTopBar(addressService),
+            _buildSearchBar(),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    _buildFoodBanner(),
+                    _buildCategories(),
+                    _buildPopularOrders(),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTopBar(AddressService addressService) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          DropdownButton<String>(
+            value: _selectedAddress.isNotEmpty ? _selectedAddress : null,
+            hint: Text('Select Address'),
+            onChanged: (newValue) {
+              setState(() {
+                _selectedAddress = newValue!;
+              });
+            },
+            items: addressService.addresses.map((address) {
+              return DropdownMenuItem<String>(
+                value: address.title,
+                child: Text(address.title),
+              );
+            }).toList(),
+          ),
+          IconButton(
+            icon: Icon(Icons.person, size: 28),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => ProfilePage()),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchBar() {
+    return Container(
+      margin: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        boxShadow: [
+          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8)
+        ],
+      ),
+      child: TextField(
+        controller: _searchController,
+        decoration: InputDecoration(
+          hintText: 'Search for food...',
+          prefixIcon: Icon(Icons.search),
+          suffixIcon: IconButton(
+            icon: Icon(Icons.close),
+            onPressed: () => _searchController.clear(),
+          ),
+          border: InputBorder.none,
+          contentPadding: EdgeInsets.symmetric(vertical: 12),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFoodBanner() {
+    return Container(
+      height: 180,
+      width: double.infinity,
+      margin: EdgeInsets.fromLTRB(16, 0, 16, 0),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.asset('assets/images/banner1.jpg', fit: BoxFit.cover),
+      ),
+    );
+  }
+
+  Widget _buildCategories() {
+    return Consumer<MenuService>(
+      builder: (context, menuService, child) {
+        if (menuService.isLoading) {
+          return Center(child: CircularProgressIndicator());
+        }
+        if (menuService.error.isNotEmpty) {
+          return Center(child: Text(menuService.error));
+        }
+
+        List<Category> categories = menuService.categories;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(16, 24, 16, 12),
+              child: Text("What's on the menu?",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            ),
+            Container(
+              height: 110,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                padding: EdgeInsets.symmetric(horizontal: 12),
+                itemCount: categories.length,
+                itemBuilder: (context, index) {
+                  return _buildCategoryItem(categories[index]);
+                },
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildCategoryItem(Category category) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                StudentMainPage(
+                  initialTabIndex: 1,
+                  initialCategory: category.id,
+                ),
+          ),
+        );
+      },
+      child: Container(
+        width: 80,
+        margin: EdgeInsets.symmetric(horizontal: 8),
+        child: Column(
+          children: [
+            Container(
+              width: 70,
+              height: 70,
+              padding: EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(35),
+                boxShadow: [
+                  BoxShadow(
+                      color: Colors.black.withOpacity(0.05), blurRadius: 4)
+                ],
+              ),
+              child: Image.asset(category.imageAsset, fit: BoxFit.contain),
+            ),
+            SizedBox(height: 8),
+            Text(category.name,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPopularOrders() {
+    return Consumer2<MenuService, CartService>(
+      builder: (context, menuService, cartService, child) {
+        if (menuService.isLoading) {
+          return Center(child: CircularProgressIndicator());
+        }
+        if (menuService.error.isNotEmpty) {
+          return Center(child: Text(menuService.error));
+        }
+
+        List<MenuItem> popularItems = menuService.popularItems;
+
+        if (popularItems.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Text('No popular items available.'),
+          );
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(16, 24, 16, 12),
+              child: Text(
+                'The Crowd Pleasers',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+            ),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 1.0,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+              ),
+              itemCount: popularItems.length,
+              itemBuilder: (context, index) {
+                final item = popularItems[index];
+                final isInStock = item.inStock;
+                final cartItem = cartService.cartItems.firstWhere(
+                      (cartItem) => cartItem['id'] == item.id,
+                  orElse: () => {},
+                );
+                final quantity = cartItem.isNotEmpty ? cartItem['quantity'] : 0;
+
+                return Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          item.name,
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          textAlign: TextAlign.center,
+                        ),
+                        SizedBox(height: 4),
+                        Text('₹${item.price.toString()}'),
+                        SizedBox(height: 8),
+                        if (isInStock && quantity == 0)
+                          ElevatedButton(
+                            onPressed: () async {
+                              await cartService.addItemToCart({
+                                'id': item.id,
+                                'name': item.name,
+                                'price': item.price,
+
+                              });
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: Text("Add to Cart",style:TextStyle(color: Colors.white),),
+                          ),
+                        if (isInStock && quantity > 0)
+                          Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey.shade400),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: Icon(Icons.remove, size: 18),
+                                  color: Colors.black,
+                                  onPressed: () async {
+                                    await cartService.decreaseQuantity(item.id);
+                                  },
+                                ),
+                                Text(
+                                  '$quantity',
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.add, size: 18),
+                                  color: Colors.black,
+                                  onPressed: () async {
+                                    await cartService.increaseQuantity(item.id);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        if (!isInStock)
+                          Column(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.red),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  'Out of Stock',
+                                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              SizedBox(height: 6),
+                              ElevatedButton(
+                                onPressed: null,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.grey.shade300,
+                                  disabledBackgroundColor: Colors.grey.shade300,
+                                  foregroundColor: Colors.grey.shade600,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                                child: Text("Add to Cart"),
+                              ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+}

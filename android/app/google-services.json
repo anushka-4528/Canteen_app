@@ -1,0 +1,143 @@
+{
+"project_info": {
+"project_number": "905263951024",
+"project_id": "canteenapp-d01a5",
+"storage_bucket": "canteenapp-d01a5.firebasestorage.app"
+},
+"client": [
+{
+"client_info": {
+"mobilesdk_app_id": "1:905263951024:android:24c5c68f56c506fd515f75",
+"android_client_info": {
+"package_name": "com.company.CanteenApp"
+}
+},
+"oauth_client": [],
+"api_key": [
+{
+"current_key": "AIzaSyCTb9duq5Uzlriz1gQXd1oVlfvomzJP0KY"
+}
+],
+"services": {
+"appinvite_service": {
+"other_platform_oauth_client": []
+}
+}
+},
+{
+"client_info": {
+"mobilesdk_app_id": "1:905263951024:android:73be667acdc6281d515f75",
+"android_client_info": {
+"package_name": "com.example.book_swap"
+}
+},
+"oauth_client": [],
+"api_key": [
+{
+"current_key": "AIzaSyCTb9duq5Uzlriz1gQXd1oVlfvomzJP0KY"
+}
+],
+"services": {
+"appinvite_service": {
+"other_platform_oauth_client": []
+}
+}
+},
+{
+"client_info": {
+"mobilesdk_app_id": "1:905263951024:android:5cda70b02d533ec6515f75",
+"android_client_info": {
+"package_name": "com.example.canteen_login_page"
+}
+},
+"oauth_client": [],
+"api_key": [
+{
+"current_key": "AIzaSyCTb9duq5Uzlriz1gQXd1oVlfvomzJP0KY"
+}
+],
+"services": {
+"appinvite_service": {
+"other_platform_oauth_client": []
+}
+}
+},
+{
+"client_info": {
+"mobilesdk_app_id": "1:905263951024:android:fb185a8df06fa14e515f75",
+"android_client_info": {
+"package_name": "com.example.collegecanteen"
+}
+},
+"oauth_client": [],
+"api_key": [
+{
+"current_key": "AIzaSyCTb9duq5Uzlriz1gQXd1oVlfvomzJP0KY"
+}
+],
+"services": {
+"appinvite_service": {
+"other_platform_oauth_client": []
+}
+}
+},
+{
+"client_info": {
+"mobilesdk_app_id": "1:905263951024:android:a5e9e70d2436e35a515f75",
+"android_client_info": {
+"package_name": "com.example.flutter_application3"
+}
+},
+"oauth_client": [],
+"api_key": [
+{
+"current_key": "AIzaSyCTb9duq5Uzlriz1gQXd1oVlfvomzJP0KY"
+}
+],
+"services": {
+"appinvite_service": {
+"other_platform_oauth_client": []
+}
+}
+},
+{
+"client_info": {
+"mobilesdk_app_id": "1:905263951024:android:4a0e44cfc760848b515f75",
+"android_client_info": {
+"package_name": "com.example.flutter_application5"
+}
+},
+"oauth_client": [],
+"api_key": [
+{
+"current_key": "AIzaSyCTb9duq5Uzlriz1gQXd1oVlfvomzJP0KY"
+}
+],
+"services": {
+"appinvite_service": {
+"other_platform_oauth_client": []
+}
+}
+},
+{
+"client_info": {
+"mobilesdk_app_id": "1:905263951024:android:0e9a25b4a665a0e4515f75",
+"android_client_info": {
+"package_name": "com.example.speech_to_text"
+}
+},
+"oauth_client": [],
+"api_key": [
+{
+"current_key": "AIzaSyCTb9duq5Uzlriz1gQXd1oVlfvomzJP0KY"
+}
+],
+"services": {
+"appinvite_service": {
+"other_platform_oauth_client": []
+}
+}
+}
+],
+"configuration_version": "1"
+}
