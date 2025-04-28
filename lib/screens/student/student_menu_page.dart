@@ -4,6 +4,7 @@ import '../../models/menu_item.dart';
 import '../../services/menu_services.dart';
 import '../../services/cart_service.dart';
 import '../../models/category.dart';
+import '../../services/translation_service.dart';
 
 class StudentMenuScreen extends StatefulWidget {
   final String initialCategory;

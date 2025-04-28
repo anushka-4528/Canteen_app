@@ -35,7 +35,8 @@ android {
         // Firebase SDKs
         implementation("com.google.firebase:firebase-analytics")
         implementation("com.google.firebase:firebase-firestore")
-        implementation("com.google.firebase:firebase-auth") // Optional, use only if you need it
+        implementation("com.google.firebase:firebase-auth")
+// Optional, use only if you need it
     }
 
 

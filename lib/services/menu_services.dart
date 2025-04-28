@@ -183,4 +183,14 @@ class MenuService extends ChangeNotifier {
       notifyListeners();
     }
   }
+  bool isInStock(String itemId) {
+    final item = _menuItems.cast<MenuItem?>().firstWhere(
+          (item) => item?.id == itemId,
+      orElse: () => null,
+    );
+    return item?.inStock ?? false;
+  }
+
+
 }
+

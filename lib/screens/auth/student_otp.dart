@@ -1,4 +1,3 @@
-// lib/screens/auth/student_otp.dart
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_application5/screens/student/student_main_page.dart';
@@ -7,7 +6,11 @@ class StudentOtp extends StatefulWidget {
   final String verificationId;
   final String collegeId;
 
-  const StudentOtp({super.key, required this.verificationId, required this.collegeId});
+  const StudentOtp({
+    super.key,
+    required this.verificationId,
+    required this.collegeId,
+  });
 
   @override
   State<StudentOtp> createState() => _StudentOtpState();
@@ -46,27 +49,69 @@ class _StudentOtpState extends State<StudentOtp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Enter OTP")),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            TextField(
-              controller: _otpController,
-              keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Enter OTP'),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.message, size: 64, color: Colors.grey),
+                const SizedBox(height: 16),
+                const Text(
+                  "Enter OTP",
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 32),
+
+                TextField(
+                  controller: _otpController,
+                  keyboardType: TextInputType.number,
+                  maxLength: 6,
+                  decoration: InputDecoration(
+                    hintText: "6-digit OTP",
+                    prefixIcon: const Icon(Icons.lock),
+                    counterText: "",
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 16, horizontal: 16),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 32),
+
+                SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: _isVerifying
+                      ? const Center(child: CircularProgressIndicator())
+                      : ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.black,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                    ),
+                    onPressed: _verifyOtp,
+                    child: const Text(
+                      "Verify",
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 20),
-            _isVerifying
-                ? const CircularProgressIndicator()
-                : ElevatedButton(
-              onPressed: _verifyOtp,
-              child: const Text('Verify'),
-            ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
-

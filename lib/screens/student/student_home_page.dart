@@ -10,7 +10,9 @@ import 'student_profile_page.dart';
 import 'student_address_page.dart';
 import 'student_main_page.dart';
 
+
 class HomeScreen extends StatefulWidget {
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -51,16 +53,20 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     final addressService = Provider.of<AddressService>(context);
 
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false, // No back button
         backgroundColor: Colors.grey[600],
-        title: Text('Home',
-            style: TextStyle(
-                color: Colors.white, fontWeight: FontWeight.bold)),
+        title: Text(
+          'Home',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
         elevation: 0,
         iconTheme: IconThemeData(color: Colors.white),
       ),
@@ -93,20 +99,44 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          DropdownButton<String>(
-            value: _selectedAddress.isNotEmpty ? _selectedAddress : null,
-            hint: Text('Select Address'),
-            onChanged: (newValue) {
-              setState(() {
-                _selectedAddress = newValue!;
-              });
-            },
-            items: addressService.addresses.map((address) {
-              return DropdownMenuItem<String>(
-                value: address.title,
-                child: Text(address.title),
-              );
-            }).toList(),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Delivery Location',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                  color: Colors.grey[800],
+                ),
+              ),
+              SizedBox(height: 4),
+              Row(
+                children: [
+                  Icon(Icons.location_on, color: Colors.red, size: 18),
+                  SizedBox(width: 4),
+                  DropdownButton<String>(
+                    value: addressService.selectedAddress,
+                    underline: SizedBox(),
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.black,
+                    ),
+                    onChanged: (newValue) {
+                      if (newValue != null) {
+                        addressService.selectAddress(newValue);
+                      }
+                    },
+                    items: addressService.addresses.map((address) {
+                      return DropdownMenuItem<String>(
+                        value: address.title,
+                        child: Text(address.title),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
+            ],
           ),
           IconButton(
             icon: Icon(Icons.person, size: 28),
@@ -122,31 +152,186 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // Updated _buildSearchBar
   Widget _buildSearchBar() {
-    return Container(
-      margin: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8)
-        ],
-      ),
-      child: TextField(
-        controller: _searchController,
-        decoration: InputDecoration(
-          hintText: 'Search for food...',
-          prefixIcon: Icon(Icons.search),
-          suffixIcon: IconButton(
-            icon: Icon(Icons.close),
-            onPressed: () => _searchController.clear(),
-          ),
-          border: InputBorder.none,
-          contentPadding: EdgeInsets.symmetric(vertical: 12),
+    return GestureDetector(
+      onTap: () => _openSearchSheet(),
+      child: Container(
+        margin: EdgeInsets.all(16),
+        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8)
+          ],
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.search, color: Colors.grey),
+            SizedBox(width: 8),
+            Text(
+              'Search for food...',
+              style: TextStyle(color: Colors.grey, fontSize: 16),
+            ),
+            Spacer(),
+            Icon(Icons.arrow_drop_down, color: Colors.grey),
+          ],
         ),
       ),
     );
   }
+
+  void _openSearchSheet() {
+    final menuService = Provider.of<MenuService>(context, listen: false);
+    final cartService = Provider.of<CartService>(context, listen: false);
+    List<MenuItem> allItems = menuService.menuItems;
+    List<MenuItem> filteredItems = List.from(allItems);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return DraggableScrollableSheet(
+              expand: false,
+              initialChildSize: 0.8,
+              minChildSize: 0.5,
+              maxChildSize: 0.95,
+              builder: (context, scrollController) {
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                  ),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: TextField(
+                          decoration: InputDecoration(
+                            hintText: 'Search food...',
+                            prefixIcon: Icon(Icons.search),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          onChanged: (value) {
+                            setState(() {
+                              filteredItems = allItems
+                                  .where((item) => item.name
+                                  .toLowerCase()
+                                  .contains(value.toLowerCase()))
+                                  .toList();
+                            });
+                          },
+                        ),
+                      ),
+                      Expanded(
+                        child: ListView.builder(
+                          controller: scrollController,
+                          itemCount: filteredItems.length,
+                          itemBuilder: (context, index) {
+                            final item = filteredItems[index];
+                            final cartItem = cartService.cartItems.firstWhere(
+                                  (cartItem) => cartItem['id'] == item.id,
+                              orElse: () => {},
+                            );
+                            final quantity = cartItem.isNotEmpty ? cartItem['quantity'] : 0;
+                            final isInStock = item.inStock;
+
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              child: Card(
+                                elevation: 4,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(12.0),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        item.name,
+                                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text('₹${item.price.toString()}'),
+                                      SizedBox(height: 8),
+                                      if (isInStock && quantity == 0)
+                                        ElevatedButton(
+                                          onPressed: () async {
+                                            await cartService.addItemToCart({
+                                              'id': item.id,
+                                              'name': item.name,
+                                              'price': item.price,
+                                            });
+                                            setState(() {}); // update UI
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: Colors.green,
+                                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                          ),
+                                          child: Text("Add to Cart", style: TextStyle(color: Colors.white)),
+                                        ),
+                                      if (isInStock && quantity > 0)
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            border: Border.all(color: Colors.grey.shade400),
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              IconButton(
+                                                icon: Icon(Icons.remove, size: 18),
+                                                onPressed: () async {
+                                                  await cartService.decreaseQuantity(item.id);
+                                                  setState(() {});
+                                                },
+                                              ),
+                                              Text('$quantity', style: TextStyle(fontSize: 16)),
+                                              IconButton(
+                                                icon: Icon(Icons.add, size: 18),
+                                                onPressed: () async {
+                                                  await cartService.increaseQuantity(item.id);
+                                                  setState(() {});
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      if (!isInStock)
+                                        Text(
+                                          'Out of Stock',
+                                          style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
 
   Widget _buildFoodBanner() {
     return Container(
@@ -314,7 +499,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                 'id': item.id,
                                 'name': item.name,
                                 'price': item.price,
-
                               });
                             },
                             style: ElevatedButton.styleFrom(

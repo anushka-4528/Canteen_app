@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 
 class CartService extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -76,6 +76,8 @@ class CartService extends ChangeNotifier {
     for (final doc in snapshot.docs) {
       await doc.reference.delete();
     }
+    _cartItems.clear(); // Clear the local cart items too
+    notifyListeners(); // Notify listeners to update UI
   }
 
   /// Update the quantity of an item in the cart

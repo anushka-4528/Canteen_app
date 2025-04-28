@@ -28,10 +28,10 @@ class _StudentMainPageState extends State<CanteenMainPage> {
     _selectedIndex = widget.initialTabIndex;
 
     _pages = [
-      //HomeScreen(), // Home page
+      HomePage(), // Home page
       CanteenMenuPage(initialCategory: widget.initialCategory ?? 'cat_rice'), // Menu page with an initial category
       //OrdersPage(), // Orders page (you need to create this page)
-      //TransactionsPage(), // Transactions page (you need to create this page)
+      TransactionsPage(), // Transactions page (you need to create this page)
     ];
   }
 
@@ -43,11 +43,7 @@ class _StudentMainPageState extends State<CanteenMainPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _pages[_selectedIndex], // Display selected page
-      floatingActionButton: FloatingActionButton(
-        onPressed: _onExitPressed,
-        child: const Icon(Icons.exit_to_app),
-        backgroundColor: Colors.grey[300],
-      ),
+
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
