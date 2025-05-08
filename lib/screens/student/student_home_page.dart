@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application5/screens/auth/login_selection.dart';
+import 'package:flutter_application5/screens/student/previous_orders.dart';
+import 'package:flutter_application5/screens/student/student_favorites_page.dart';
 import 'package:provider/provider.dart';
 import '../../services/menu_services.dart';
 import '../../models/category.dart';
@@ -60,16 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
     final addressService = Provider.of<AddressService>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false, // No back button
-        backgroundColor: Colors.grey[600],
-        title: Text(
-          'Home',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        elevation: 0,
-        iconTheme: IconThemeData(color: Colors.white),
-      ),
+
       backgroundColor: Colors.grey[200],
       body: SafeArea(
         child: Column(
@@ -141,12 +135,108 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: Icon(Icons.person, size: 28),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => ProfilePage()),
+              showModalBottomSheet(
+                context: context,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                ),
+                builder: (context) {
+                  return Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Hey there, Food lover!',
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 16),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => FavoritesScreen()), // Navigate to Favorites Page
+                                  );
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.all(16),
+                                  margin: EdgeInsets.only(right: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Icon(Icons.favorite, color: Colors.red),
+                                      SizedBox(height: 8),
+                                      Text('Favorites'),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () {
+                                  Navigator.pop(context);
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => PreviousOrdersPage()), // Navigate to Order History Page
+                                  );
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.all(16),
+                                  margin: EdgeInsets.only(left: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Icon(Icons.history, color: Colors.blue),
+                                      SizedBox(height: 8),
+                                      Text('Order History'),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 20),
+                        Center(
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.of(context).pushAndRemoveUntil(
+                                MaterialPageRoute(builder: (_) => LoginSelection()), // Navigate to LoginSelection Page
+                                    (route) => false, // Remove all previous routes
+                              );
+                            },
+                            icon: Icon(Icons.logout),
+                            label: Text('Logout'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red[400],
+                              foregroundColor: Colors.white,
+                              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               );
             },
-          ),
+          )
+
         ],
       ),
     );

@@ -11,7 +11,7 @@ class TransactionsPage extends StatefulWidget {
 
 class _TransactionsPageState extends State<TransactionsPage> {
   List<DocumentSnapshot> _transactions = [];
-  Map<String, int> _dailyTotals = {};
+  Map<String, double> _dailyTotals = {};
   final Color primaryColor = const Color(0xFF757373);
 
   @override
@@ -22,24 +22,21 @@ class _TransactionsPageState extends State<TransactionsPage> {
 
   Future<void> fetchTransactions() async {
     final snapshot = await FirebaseFirestore.instance
-        .collection('transactions')
+        .collection('payments')
         .orderBy('timestamp', descending: true)
         .get();
 
     final transactions = snapshot.docs;
-
-    // Calculate daily totals
-    final dailyTotals = <String, int>{};
+    final dailyTotals = <String, double>{};
 
     for (var txn in transactions) {
       final timestamp = txn['timestamp'] as Timestamp?;
-      final amountPaisa = txn['amount'] as int? ?? 0;
-      final amountRupees = amountPaisa ~/ 100; // Paisa to Rupees
+      final amount = txn['amount'] as num? ?? 0;
 
       if (timestamp != null) {
         final date = DateFormat('yMMMd').format(timestamp.toDate());
-        dailyTotals.update(date, (value) => value + amountRupees,
-            ifAbsent: () => amountRupees);
+        dailyTotals.update(date, (value) => value + amount.toDouble(),
+            ifAbsent: () => amount.toDouble());
       }
     }
 
@@ -52,13 +49,19 @@ class _TransactionsPageState extends State<TransactionsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
-        backgroundColor: primaryColor,
         title: const Text(
-            'Transactions', style: TextStyle(color: Colors.white)),
+          'Transactions',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        backgroundColor: primaryColor,
         centerTitle: true,
+        elevation: 1,
       ),
+      backgroundColor: const Color(0xFFF2F2F2),
       body: _transactions.isEmpty
           ? const Center(child: CircularProgressIndicator())
           : ListView.builder(
@@ -67,7 +70,6 @@ class _TransactionsPageState extends State<TransactionsPage> {
           final date = _dailyTotals.keys.elementAt(index);
           final dailyTotal = _dailyTotals[date] ?? 0;
 
-          // Filter transactions for this date
           final txnsForDate = _transactions.where((txn) {
             final timestamp = txn['timestamp'] as Timestamp?;
             final txnDate = timestamp != null
@@ -82,13 +84,13 @@ class _TransactionsPageState extends State<TransactionsPage> {
     );
   }
 
-  Widget _buildDailyTransactions(String date, int dailyTotal,
-      List<DocumentSnapshot> txns) {
+  Widget _buildDailyTransactions(
+      String date, double dailyTotal, List<DocumentSnapshot> txns) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          color: Colors.grey.shade300,
+          color: Colors.blue.shade50,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           width: double.infinity,
           child: Row(
@@ -98,24 +100,34 @@ class _TransactionsPageState extends State<TransactionsPage> {
                 date,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
-                  fontSize: 18, // Bigger font size
+                  fontSize: 18,
                   color: Colors.black87,
                 ),
               ),
-              Text(
-                '₹$dailyTotal',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18, // Bigger font size
-                  color: Colors.green,
-                ),
+              Row(
+                children: [
+                  const Icon(
+                    Icons.add, // Changed from add_circle_outline
+                    color: Colors.blue,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    '₹${dailyTotal.toStringAsFixed(0)}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: Colors.blue,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
         ),
         ...txns.map((txn) {
-          final amountPaisa = txn['amount'] as int? ?? 0;
-          final amountRupees = amountPaisa ~/ 100;
+          final amount = txn['amount'] as num? ?? 0;
+          final userId = txn['userId'] ?? 'User';
 
           return ListTile(
             leading: const CircleAvatar(
@@ -123,7 +135,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
               child: Icon(Icons.person, color: Colors.white),
             ),
             title: Text(
-              txn['uid'] ?? 'User',
+              userId,
               style: const TextStyle(fontWeight: FontWeight.w500),
             ),
             subtitle: Text(
@@ -132,7 +144,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
               ),
             ),
             trailing: Text(
-              '₹$amountRupees',
+              '₹${amount.toStringAsFixed(0)}',
               style: const TextStyle(
                 color: Colors.green,
                 fontWeight: FontWeight.bold,

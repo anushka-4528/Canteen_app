@@ -25,10 +25,10 @@ class MenuService extends ChangeNotifier {
 
   MenuService() {
     _categories = [
-      Category(id: 'cat_rice', name: 'Rice', imageAsset: 'assets/images/rice1.jpg'),
-      Category(id: 'cat_noodles', name: 'Noodles', imageAsset: 'assets/images/noodles1.jpg'),
-      Category(id: 'cat_appetizers', name: 'Appetizers', imageAsset: 'assets/images/appetizers.jpg'),
-      Category(id: 'cat_beverages', name: 'Beverages', imageAsset: 'assets/images/beverages.jpg'),
+      Category(id: 'cat_rice', name: 'Rice', imageAsset: 'assets/images/rice1.jpg',translatedName: ''),
+      Category(id: 'cat_noodles', name: 'Noodles', imageAsset: 'assets/images/noodles1.jpg',translatedName: ''),
+      Category(id: 'cat_appetizers', name: 'Appetizers', imageAsset: 'assets/images/appetizers.jpg',translatedName: ''),
+      Category(id: 'cat_beverages', name: 'Beverages', imageAsset: 'assets/images/beverages.jpg',translatedName: ''),
     ];
     fetchMenuItems();
     fetchFavorites();

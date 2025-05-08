@@ -63,76 +63,79 @@ class _StudentLoginState extends State<StudentLogin> {
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.lock_outline, size: 64, color: Colors.grey),
-                const SizedBox(height: 16),
-                const Text(
-                  "Student Login",
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 32),
+    mainAxisAlignment: MainAxisAlignment.center,
+    children: [
+    const Icon(Icons.lock_outline, size: 64, color: Colors.grey),
+    const SizedBox(height: 16),
+    const Text(
+    "Student Login",
+    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+    ),
+    const SizedBox(height: 32),
 
-                TextField(
-                  controller: _phoneController,
-                  keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
-                    hintText: "Enter your phone number",
-                    prefixIcon: const Icon(Icons.phone),
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    contentPadding: const EdgeInsets.symmetric(
-                        vertical: 16, horizontal: 16),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: _idController,
-                  decoration: InputDecoration(
-                    hintText: "Enter your College ID",
-                    prefixIcon: const Icon(Icons.badge),
-                    filled: true,
-                    fillColor: Colors.grey[100],
-                    contentPadding: const EdgeInsets.symmetric(
-                        vertical: 16, horizontal: 16),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 32),
+    // 👇 College ID moved above
+    TextField(
+    controller: _idController,
+    decoration: InputDecoration(
+    hintText: "Enter your College ID",
+    prefixIcon: const Icon(Icons.badge),
+    filled: true,
+    fillColor: Colors.grey[100],
+    contentPadding: const EdgeInsets.symmetric(
+    vertical: 16, horizontal: 16),
+    border: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(12),
+    borderSide: BorderSide.none,
+    ),
+    ),
+    ),
+    const SizedBox(height: 20),
 
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: _isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    onPressed: _sendOTP,
-                    child: const Text(
-                      "Send OTP",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+    // 👇 Phone number moved below
+    TextField(
+    controller: _phoneController,
+    keyboardType: TextInputType.phone,
+    decoration: InputDecoration(
+    hintText: "Enter your phone number",
+    prefixIcon: const Icon(Icons.phone),
+    filled: true,
+    fillColor: Colors.grey[100],
+    contentPadding: const EdgeInsets.symmetric(
+    vertical: 16, horizontal: 16),
+    border: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(12),
+    borderSide: BorderSide.none,
+    ),
+    ),
+    ),
+
+    const SizedBox(height: 32),
+    SizedBox(
+    width: double.infinity,
+    height: 50,
+    child: _isLoading
+    ? const Center(child: CircularProgressIndicator())
+        : ElevatedButton(
+    style: ElevatedButton.styleFrom(
+    backgroundColor: primaryColor,
+    shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(12),
+    ),
+    ),
+    onPressed: _sendOTP,
+    child: const Text(
+    "Send OTP",
+    style: TextStyle(
+    color: Colors.white,
+    fontSize: 16,
+    fontWeight: FontWeight.w600),
+    ),
+    ),
+    ),
+    ],
+    ),
           ),
-        ),
+    ),
       ),
     );
   }

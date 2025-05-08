@@ -69,7 +69,7 @@ class FirestoreService {
           id: doc.id,
           name: data['name'],
           price: data['price'],
-
+          translatedName: data['translatedName'],
           description: data['description'],
           inStock: data['inStock'],
           categoryId: data['categoryId'],

@@ -1,19 +1,36 @@
-import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
-class TranslationService {
-  static const String _apiKey = 'AIzaSyACZprG9y3jRLqZzrdYEN1xrJ7VQ-KvJqo';
-  static const String _url = 'https://api.mymemory.translated.net/get';
+class TranslateService with ChangeNotifier {
+  final String _apiKey = 'AIzaSyACZprG9y3jRLqZzrdYEN1xrJ7VQ-KvJqo';
+  final Map<String, String> _cache = {}; // <English, Telugu>
 
-  Future<String> translateText(String text, String targetLang) async {
-    final response = await http.get(Uri.parse('$_url?q=$text&langpair=en|$targetLang'));
+  Future<String> translateText(String text, {String targetLang = 'te'}) async {
+    if (_cache.containsKey(text)) {
+      return _cache[text]!;
+    }
+
+    final url = Uri.parse('https://translation.googleapis.com/language/translate/v2?key=$_apiKey');
+
+    final response = await http.post(
+      url,
+      body: jsonEncode({
+        'q': text,
+        'target': targetLang,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    );
 
     if (response.statusCode == 200) {
-      final Map<String, dynamic> data = json.decode(response.body);
-      return data['responseData']['translatedText'] ?? text;  // Fallback to original text if translation fails
+      final data = jsonDecode(response.body);
+      final translated = data['data']['translations'][0]['translatedText'];
+      _cache[text] = translated; // Save it
+      return translated;
     } else {
-      throw Exception('Failed to load translation');
+      throw Exception('Failed to translate text');
     }
   }
 }
-

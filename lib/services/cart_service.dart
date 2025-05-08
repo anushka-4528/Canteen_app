@@ -1,6 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 
 class CartService extends ChangeNotifier {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -60,14 +60,22 @@ class CartService extends ChangeNotifier {
   }
 
   /// Remove an item from the cart
+  /// Remove an item from the cart
   Future<void> removeItemFromCart(String itemId) async {
-    await _firestore
-        .collection('users')
-        .doc(_userId)
-        .collection('cart')
-        .doc(itemId)
-        .delete();
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final cartItemRef = FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('cart')
+          .doc(itemId);
+
+      // Delete the item from Firestore
+      await cartItemRef.delete();  // Use delete instead of update
+    }
   }
+
+
 
   /// Clear all items from the cart
   Future<void> clearCart() async {
@@ -76,8 +84,6 @@ class CartService extends ChangeNotifier {
     for (final doc in snapshot.docs) {
       await doc.reference.delete();
     }
-    _cartItems.clear(); // Clear the local cart items too
-    notifyListeners(); // Notify listeners to update UI
   }
 
   /// Update the quantity of an item in the cart
@@ -106,44 +112,72 @@ class CartService extends ChangeNotifier {
     }
   }
 
+  /// Checkout: Move cart to canteen orders
+  Future<void> checkout() async {
+    final cartRef = _firestore.collection('users').doc(_userId).collection('cart');
+    final cartSnapshot = await cartRef.get();
+
+    if (cartSnapshot.docs.isEmpty) return;
+
+    final orderItems = cartSnapshot.docs.map((doc) => doc.data()).toList();
+    final timestamp = Timestamp.now();
+
+    await _firestore.collection('canteenOrders').add({
+      'userId': _userId,
+      'items': orderItems,
+      'status': 'Received',
+      'time': timestamp,
+    });
+
+    await clearCart();
+  }
+
   /// Decrease the quantity of an item in the cart
   Future<void> decreaseQuantity(String itemId) async {
-    final cartRef = _firestore.collection('users').doc(_userId).collection('cart');
-    final itemDoc = cartRef.doc(itemId);
-    final docSnapshot = await itemDoc.get();
+    final cartRef = _firestore.collection('cart').doc(itemId);
+    final doc = await cartRef.get();
 
-    if (docSnapshot.exists) {
-      int currentQuantity = docSnapshot['quantity'];
-      if (currentQuantity > 1) {
-        await itemDoc.update({'quantity': currentQuantity - 1});
-      } else {
-        await removeItemFromCart(itemId);
-      }
+    if (doc.exists) {
+      final currentQty = doc.data()?['quantity'] ?? 1;
+      final newQty = currentQty - 1;
+      await cartRef.update({'quantity': newQty < 0 ? 0 : newQty});
     }
   }
 
+
   /// Listen for stock updates and handle out-of-stock items in the cart
+  /// Listen for stock updates and mark out-of-stock items
   Future<void> listenForStockUpdates() async {
     FirebaseFirestore.instance
         .collection('menuItems')
         .snapshots()
-        .listen((snapshot) {
+        .listen((snapshot) async {
       for (var doc in snapshot.docs) {
         final itemId = doc.id;
         final inStock = doc['inStock'];
 
-        // Update the stock status of items in the cart
-        _cartItems = _cartItems.map((item) {
-          if (item['id'] == itemId) {
-            item['inStock'] = inStock; // Update stock status
-            if (!inStock) {
-              removeItemFromCart(itemId); // Remove out-of-stock items from cart
-            }
-          }
-          return item;
-        }).toList();
-        notifyListeners();
+        final cartRef = _firestore
+            .collection('users')
+            .doc(_userId)
+            .collection('cart')
+            .doc(itemId);
+
+        final cartSnapshot = await cartRef.get();
+        if (cartSnapshot.exists) {
+          // Update only the inStock flag, don't remove the item
+          await cartRef.update({'inStock': inStock});
+        }
       }
     });
+  }
+
+
+  /// ✅ TOTAL ITEMS COUNT FUNCTION (ADDED NOW)
+  int totalItemsCount() {
+    int total = 0;
+    for (var item in _cartItems) {
+      total += item['quantity'] as int;
+    }
+    return total;
   }
 }

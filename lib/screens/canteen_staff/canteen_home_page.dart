@@ -2,46 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/menu_item.dart';
-import '../../services/menu_services.dart';
+import '../../models/order_model.dart';
 import '../../services/cart_service.dart';
-import '../../services/translation_service.dart';
+import '../../services/menu_services.dart';
+import '../../services/order_service.dart';
 import '../auth/login_selection.dart';
 
-class HomePage extends StatefulWidget {
-
+class CanteenHomePage extends StatefulWidget {
+  const CanteenHomePage({Key? key}) : super(key: key);
 
   @override
-  _HomePageState createState() => _HomePageState();
+  State<CanteenHomePage> createState() => _CanteenHomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _CanteenHomePageState extends State<CanteenHomePage> {
   final TextEditingController _searchController = TextEditingController();
-  List<MenuItem> _filteredItems = [];
-  List<MenuItem> _originalItems = [];
   bool _isTelugu = false;
-  bool _isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-     // Set language based on passed parameter
-    final menuService = Provider.of<MenuService>(context, listen: false);
-    _filteredItems = menuService.menuItems;
-    _originalItems = menuService.menuItems;
-  }
-
-
-
-  void _filterItems(String query) {
-    final menuService = Provider.of<MenuService>(context, listen: false);
-    final filteredItems = menuService.menuItems
-        .where((item) =>
-        item.name.toLowerCase().contains(query.toLowerCase()))
-        .toList();
-    setState(() {
-      _filteredItems = filteredItems;
-    });
-  }
 
   void _openSearchSheet() {
     final menuService = Provider.of<MenuService>(context, listen: false);
@@ -102,7 +78,6 @@ class _HomePageState extends State<HomePage> {
                               orElse: () => {},
                             );
                             final quantity = cartItem.isNotEmpty ? cartItem['quantity'] : 0;
-                            final isInStock = item.inStock;
 
                             return Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -131,22 +106,20 @@ class _HomePageState extends State<HomePage> {
                                             inactiveThumbColor: Colors.red[300],
                                             onChanged: (val) {
                                               setState(() {
-                                                // Create a new instance of MenuItem with updated inStock value
                                                 final updatedItem = MenuItem(
                                                   id: item.id,
                                                   name: item.name,
                                                   price: item.price,
                                                   categoryId: item.categoryId,
-                                                  inStock: val, // Update stock status
+                                                  inStock: val,
                                                   description: item.description,
+                                                  translatedName: item.translatedName,
                                                 );
 
-                                                // Replace the old item with the updated one
                                                 int index = filteredItems.indexOf(item);
                                                 filteredItems[index] = updatedItem;
                                               });
 
-                                              // Update the stock status in the database
                                               menuService.updateStockStatus(item.id, val);
                                             },
                                           ),
@@ -180,77 +153,131 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final orderService = Provider.of<OrderService>(context);
+    final nonDeliveredOrders = orderService.orders.where((order) => order.status != 'Delivered').toList();
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          _isTelugu ? 'హోమ్' : 'Home Page',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: const Color(0xFF757373),
+        title: const Text('Canteen Home', style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold)),
+        backgroundColor: Color(0xFF757373),
         elevation: 0,
         actions: [
-
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.person, color: Colors.white),
-            itemBuilder: (BuildContext context) => [
-              PopupMenuItem<String>(
-                value: 'logout',
-                child: ElevatedButton.icon(
-                  onPressed: () => _logout(context),
-                  icon: const Icon(Icons.logout),
-                  label: const Text('Logout'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurpleAccent,
-                    foregroundColor: Colors.white,
-                  ),
-                ),
-              ),
-            ],
-          ),
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (_) => const LoginSelection()),
+                    (route) => false,
+              );
+            },
+          )
         ],
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Search bar
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: GestureDetector(
-                onTap: () => _openSearchSheet(),
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8)],
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.search, color: Colors.grey),
-                      SizedBox(width: 8),
-                      Text(
-                        _isTelugu ? 'ఆహారాన్ని శోధించండి...' : 'Search for food...',
-                        style: TextStyle(color: Colors.grey, fontSize: 16),
-                      ),
-                      Spacer(),
-                      Icon(Icons.arrow_drop_down, color: Colors.grey),
-                    ],
-                  ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: GestureDetector(
+              onTap: _openSearchSheet,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 8)],
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.search, color: Colors.grey),
+                    const SizedBox(width: 8),
+                    Text(
+                      _isTelugu ? 'ఆహారాన్ని శోధించండి...' : 'Search for food...',
+                      style: const TextStyle(color: Colors.grey, fontSize: 16),
+                    ),
+                    const Spacer(),
+                    const Icon(Icons.arrow_drop_down, color: Colors.grey),
+                  ],
                 ),
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
+          ),
+          Expanded(
+            child: nonDeliveredOrders.isEmpty
+                ? const Center(child: Text("No orders yet"))
+                : ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              itemCount: nonDeliveredOrders.length,
+              itemBuilder: (context, index) {
+                final order = nonDeliveredOrders[index];
+                final itemNames = order.items
+                    .map((item) => item['name'] as String)
+                    .toList()
+                    .join(', ');
 
-  void _logout(BuildContext context) async {
-    await FirebaseAuth.instance.signOut();
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const LoginSelection()),
-          (route) => false,
+                return Card(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  elevation: 4,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text: 'Items: ',
+                                style: TextStyle(color: Colors.grey[800]),
+                              ),
+                              TextSpan(
+                                text: itemNames,
+                                style: const TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text('Order ID: ${order.id}', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                        const SizedBox(height: 8),
+                        Text('Location: ${order.location}', style: TextStyle(color: Colors.grey[600])),
+                        const SizedBox(height: 8),
+                        Text('Total: ₹${order.total.toStringAsFixed(2)}', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                        const SizedBox(height: 12),
+                        ElevatedButton(
+                          onPressed: () async {
+                            final newStatus = order.status == 'Ready' ? 'Delivered' : 'Ready';
+                            await orderService.updateOrderStatus(order.id, newStatus);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Order marked as $newStatus!")),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: order.status == 'Ready' ? Colors.blue : Colors.green,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                          child: Text(
+                            order.status == 'Ready' ? 'Mark as Delivered' : 'Mark as Ready',
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
