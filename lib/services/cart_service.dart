@@ -41,138 +41,178 @@ class CartService extends ChangeNotifier {
 
   /// Add an item to the cart, incrementing quantity if already in cart
   Future<void> addItemToCart(Map<String, dynamic> item) async {
-    final cartRef = _firestore.collection('users').doc(_userId).collection('cart');
-    final itemDoc = cartRef.doc(item['id']);
+    try {
+      print('Adding item to cart: ${item.toString()}'); // Debug log
 
-    final docSnapshot = await itemDoc.get();
-    if (docSnapshot.exists) {
-      await itemDoc.update({'quantity': FieldValue.increment(1)});
-    } else {
-      await itemDoc.set({
-        'id': item['id'],
-        'name': item['name'],
-        'price': item['price'],
-        'image': item['image'],
-        'quantity': 1,
-        'inStock': true,
-      });
+      final cartRef = _firestore.collection('users').doc(_userId).collection('cart');
+      final itemDoc = cartRef.doc(item['id']);
+
+      final docSnapshot = await itemDoc.get();
+      if (docSnapshot.exists) {
+        await itemDoc.update({'quantity': FieldValue.increment(1)});
+        print('Updated existing item quantity'); // Debug log
+      } else {
+        await itemDoc.set({
+          'id': item['id'],
+          'name': item['name'],
+          'price': item['price'],
+          'image': item['image'] ?? '', // Handle null image
+          'quantity': 1,
+          'inStock': true,
+        });
+        print('Added new item to cart'); // Debug log
+      }
+    } catch (e) {
+      print('Error adding item to cart: $e');
+      // You might want to show a snackbar or toast to the user
     }
   }
 
-  /// Remove an item from the cart
   /// Remove an item from the cart
   Future<void> removeItemFromCart(String itemId) async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final cartItemRef = FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .collection('cart')
-          .doc(itemId);
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final cartItemRef = FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .collection('cart')
+            .doc(itemId);
 
-      // Delete the item from Firestore
-      await cartItemRef.delete();  // Use delete instead of update
+        await cartItemRef.delete();
+        print('Removed item from cart: $itemId'); // Debug log
+      }
+    } catch (e) {
+      print('Error removing item from cart: $e');
     }
   }
-
-
 
   /// Clear all items from the cart
   Future<void> clearCart() async {
-    final cartRef = _firestore.collection('users').doc(_userId).collection('cart');
-    final snapshot = await cartRef.get();
-    for (final doc in snapshot.docs) {
-      await doc.reference.delete();
+    try {
+      final cartRef = _firestore.collection('users').doc(_userId).collection('cart');
+      final snapshot = await cartRef.get();
+      for (final doc in snapshot.docs) {
+        await doc.reference.delete();
+      }
+      print('Cart cleared'); // Debug log
+    } catch (e) {
+      print('Error clearing cart: $e');
     }
   }
 
   /// Update the quantity of an item in the cart
   Future<void> updateItemQuantity(String itemId, int quantity) async {
-    if (quantity <= 0) {
-      await removeItemFromCart(itemId);
-    } else {
-      await _firestore
-          .collection('users')
-          .doc(_userId)
-          .collection('cart')
-          .doc(itemId)
-          .update({'quantity': quantity});
+    try {
+      if (quantity <= 0) {
+        await removeItemFromCart(itemId);
+      } else {
+        await _firestore
+            .collection('users')
+            .doc(_userId)
+            .collection('cart')
+            .doc(itemId)
+            .update({'quantity': quantity});
+      }
+    } catch (e) {
+      print('Error updating item quantity: $e');
     }
   }
 
   /// Increase the quantity of an item in the cart
   Future<void> increaseQuantity(String itemId) async {
-    final cartRef = _firestore.collection('users').doc(_userId).collection('cart');
-    final itemDoc = cartRef.doc(itemId);
-    final docSnapshot = await itemDoc.get();
+    try {
+      final cartRef = _firestore.collection('users').doc(_userId).collection('cart');
+      final itemDoc = cartRef.doc(itemId);
+      final docSnapshot = await itemDoc.get();
 
-    if (docSnapshot.exists) {
-      int currentQuantity = docSnapshot['quantity'];
-      await itemDoc.update({'quantity': currentQuantity + 1});
+      if (docSnapshot.exists) {
+        int currentQuantity = docSnapshot['quantity'];
+        await itemDoc.update({'quantity': currentQuantity + 1});
+        print('Increased quantity for item: $itemId'); // Debug log
+      }
+    } catch (e) {
+      print('Error increasing quantity: $e');
+    }
+  }
+
+  /// Decrease the quantity of an item in the cart - FIXED
+  Future<void> decreaseQuantity(String itemId) async {
+    try {
+      final cartRef = _firestore.collection('users').doc(_userId).collection('cart');
+      final itemDoc = cartRef.doc(itemId);
+      final doc = await itemDoc.get();
+
+      if (doc.exists) {
+        final currentQty = doc.data()?['quantity'] ?? 1;
+        final newQty = currentQty - 1;
+
+        if (newQty <= 0) {
+          await removeItemFromCart(itemId);
+        } else {
+          await itemDoc.update({'quantity': newQty});
+        }
+        print('Decreased quantity for item: $itemId'); // Debug log
+      }
+    } catch (e) {
+      print('Error decreasing quantity: $e');
     }
   }
 
   /// Checkout: Move cart to canteen orders
   Future<void> checkout() async {
-    final cartRef = _firestore.collection('users').doc(_userId).collection('cart');
-    final cartSnapshot = await cartRef.get();
+    try {
+      final cartRef = _firestore.collection('users').doc(_userId).collection('cart');
+      final cartSnapshot = await cartRef.get();
 
-    if (cartSnapshot.docs.isEmpty) return;
+      if (cartSnapshot.docs.isEmpty) return;
 
-    final orderItems = cartSnapshot.docs.map((doc) => doc.data()).toList();
-    final timestamp = Timestamp.now();
+      final orderItems = cartSnapshot.docs.map((doc) => doc.data()).toList();
+      final timestamp = Timestamp.now();
 
-    await _firestore.collection('canteenOrders').add({
-      'userId': _userId,
-      'items': orderItems,
-      'status': 'Received',
-      'time': timestamp,
-    });
+      await _firestore.collection('canteenOrders').add({
+        'userId': _userId,
+        'items': orderItems,
+        'status': 'Received',
+        'time': timestamp,
+      });
 
-    await clearCart();
-  }
-
-  /// Decrease the quantity of an item in the cart
-  Future<void> decreaseQuantity(String itemId) async {
-    final cartRef = _firestore.collection('cart').doc(itemId);
-    final doc = await cartRef.get();
-
-    if (doc.exists) {
-      final currentQty = doc.data()?['quantity'] ?? 1;
-      final newQty = currentQty - 1;
-      await cartRef.update({'quantity': newQty < 0 ? 0 : newQty});
+      await clearCart();
+      print('Checkout completed'); // Debug log
+    } catch (e) {
+      print('Error during checkout: $e');
     }
   }
 
-
-  /// Listen for stock updates and handle out-of-stock items in the cart
   /// Listen for stock updates and mark out-of-stock items
   Future<void> listenForStockUpdates() async {
-    FirebaseFirestore.instance
-        .collection('menuItems')
-        .snapshots()
-        .listen((snapshot) async {
-      for (var doc in snapshot.docs) {
-        final itemId = doc.id;
-        final inStock = doc['inStock'];
+    try {
+      FirebaseFirestore.instance
+          .collection('menuItems')
+          .snapshots()
+          .listen((snapshot) async {
+        for (var doc in snapshot.docs) {
+          final itemId = doc.id;
+          final inStock = doc['inStock'];
 
-        final cartRef = _firestore
-            .collection('users')
-            .doc(_userId)
-            .collection('cart')
-            .doc(itemId);
+          final cartRef = _firestore
+              .collection('users')
+              .doc(_userId)
+              .collection('cart')
+              .doc(itemId);
 
-        final cartSnapshot = await cartRef.get();
-        if (cartSnapshot.exists) {
-          // Update only the inStock flag, don't remove the item
-          await cartRef.update({'inStock': inStock});
+          final cartSnapshot = await cartRef.get();
+          if (cartSnapshot.exists) {
+            await cartRef.update({'inStock': inStock});
+          }
         }
-      }
-    });
+      });
+    } catch (e) {
+      print('Error listening for stock updates: $e');
+    }
   }
 
-
-  /// ✅ TOTAL ITEMS COUNT FUNCTION (ADDED NOW)
+  /// Total items count function
   int totalItemsCount() {
     int total = 0;
     for (var item in _cartItems) {

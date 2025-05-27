@@ -3,6 +3,7 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_gobi_65',
     'name': 'Gobi 65',
+    'teluguName': 'గోబి 65',
     'description': 'Crispy cauliflower tossed in spicy masala',
     'categoryId': 'cat_appetizers',
     'price': 40.0,
@@ -12,6 +13,7 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_spring_roll',
     'name': 'Spring Roll',
+    'teluguName': 'స్ప్రింగ్ రోల్',
     'description': 'Crispy vegetable filled rolls',
     'categoryId': 'cat_appetizers',
     'price': 50.0,
@@ -21,6 +23,7 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_shanghai_roll',
     'name': 'Shanghai Roll',
+    'teluguName': 'షాంఘై రోల్',
     'description': 'Special shanghai style roll',
     'categoryId': 'cat_appetizers',
     'price': 60.0,
@@ -30,6 +33,7 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_paneer_tikka',
     'name': 'Paneer Tikka',
+    'teluguName': 'పనీర్ టిక్కా',
     'description': 'Grilled cottage cheese with spices',
     'categoryId': 'cat_appetizers',
     'price': 70.0,
@@ -39,6 +43,7 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_chilly_paneer',
     'name': 'Chilly Paneer',
+    'teluguName': 'చిల్లీ పనీర్',
     'description': 'Paneer tossed in spicy chilly sauce',
     'categoryId': 'cat_appetizers',
     'price': 70.0,
@@ -47,7 +52,8 @@ final List<Map<String, dynamic>> menuItemsData = [
   },
   {
     'id': 'item_pasta',
-    'name': 'Pasth=a',
+    'name': 'Pasta',
+    'teluguName': 'పాస్తా',
     'description': 'Indian style pasta dish',
     'categoryId': 'cat_main_appetizers',
     'price': 45.0,
@@ -57,6 +63,7 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_pasta_mix',
     'name': 'Pasta Mix',
+    'teluguName': 'పాస్తా మిక్స్',
     'description': 'Mixed pasta varieties with special sauce',
     'categoryId': 'cat_main_appetizers',
     'price': 55.0,
@@ -66,6 +73,7 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_veg_biryani',
     'name': 'Veg Biryani',
+    'teluguName': 'వెజ్ బిర్యానీ',
     'description': 'Fragrant rice with mixed vegetables',
     'categoryId': 'cat_rice',
     'price': 80.0,
@@ -75,6 +83,7 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_fried_rice',
     'name': 'Fried Rice',
+    'teluguName': 'ఫ్రైడ్ రైస్',
     'description': 'Stir-fried rice with vegetables',
     'categoryId': 'cat_rice',
     'price': 35.0,
@@ -84,6 +93,7 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_schezwan_rice',
     'name': 'Schezwan Rice',
+    'teluguName': 'షెజ్వాన్ రైస్',
     'description': 'Rice tossed in spicy schezwan sauce',
     'categoryId': 'cat_rice',
     'price': 40.0,
@@ -93,14 +103,17 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_noodles',
     'name': 'Noodles',
+    'teluguName': 'నూడిల్స్',
     'description': 'Stir-fried noodles with vegetables',
     'categoryId': 'cat_noodles',
     'price': 35.0,
     'inStock': true,
     'imageUrl': '',
-  },{
+  },
+  {
     'id': 'item_samosa',
     'name': 'Samosa',
+    'teluguName': 'సమోసా',
     'description': 'Crispy pastry filled with spiced potatoes',
     'categoryId': 'cat_appetizers',
     'price': 10.0,
@@ -110,6 +123,7 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_puff',
     'name': 'Puff',
+    'teluguName': 'పఫ్',
     'description': 'Flaky pastry with savory filling',
     'categoryId': 'cat_appetizers',
     'price': 10.0,
@@ -119,6 +133,7 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_meals',
     'name': 'Meals',
+    'teluguName': 'మీల్స్',
     'description': 'Complete meal with rice, curry and sides',
     'categoryId': 'cat_rice',
     'price': 35.0,
@@ -128,6 +143,7 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_mix_fried_rice',
     'name': 'Mix Fried Rice',
+    'teluguName': 'మిక్స్ ఫ్రైడ్ రైస్',
     'description': 'Fried rice with mixed vegetables',
     'categoryId': 'cat_rice',
     'price': 50.0,
@@ -137,6 +153,7 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_paneer_fried_rice',
     'name': 'Paneer Fried Rice',
+    'teluguName': 'పనీర్ ఫ్రైడ్ రైస్',
     'description': 'Fried rice with paneer pieces',
     'categoryId': 'cat_rice',
     'price': 55.0,
@@ -146,6 +163,7 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_paneer_mix_fried_rice',
     'name': 'Paneer Mix Fried Rice',
+    'teluguName': 'పనీర్ మిక్స్ ఫ్రైడ్ రైస్',
     'description': 'Fried rice with paneer and mixed vegetables',
     'categoryId': 'cat_rice',
     'price': 60.0,
@@ -155,6 +173,7 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_schezwan_rice_mix',
     'name': 'Schezwan Rice Mix',
+    'teluguName': 'షెజ్వాన్ రైస్ మిక్స్',
     'description': 'Spicy schezwan rice with mixed vegetables',
     'categoryId': 'cat_rice',
     'price': 50.0,
@@ -164,6 +183,7 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_jeera_rice',
     'name': 'Jeera Rice',
+    'teluguName': 'జీర రైస్',
     'description': 'Rice flavored with cumin seeds',
     'categoryId': 'cat_rice',
     'price': 35.0,
@@ -171,30 +191,13 @@ final List<Map<String, dynamic>> menuItemsData = [
     'imageUrl': '',
   },
 
-
-  {
-    'id': 'item_veg_biryani',
-    'name': 'Veg Biryani',
-    'description': 'Fragrant rice with mixed vegetables',
-    'categoryId': 'cat_rice',
-    'price': 80.0,
-    'inStock': true,
-    'imageUrl': '',
-  },
+  // Note: Duplicate item removed - keeping only one Veg Biryani entry
 
   // Noodles
   {
-    'id': 'item_noodles',
-    'name': 'Noodles',
-    'description': 'Plain stir-fried noodles',
-    'categoryId': 'cat_noodles',
-    'price': 35.0,
-    'inStock': true,
-    'imageUrl': '',
-  },
-  {
     'id': 'item_noodles_mix',
     'name': 'Noodles Mix',
+    'teluguName': 'నూడిల్స్ మిక్స్',
     'description': 'Stir-fried noodles with mixed vegetables',
     'categoryId': 'cat_noodles',
     'price': 50.0,
@@ -204,6 +207,7 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_paneer_noodles',
     'name': 'Paneer Noodles',
+    'teluguName': 'పనీర్ నూడిల్స్',
     'description': 'Stir-fried noodles with paneer',
     'categoryId': 'cat_noodles',
     'price': 55.0,
@@ -213,6 +217,7 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_schezwan_noodles',
     'name': 'Schezwan Noodles',
+    'teluguName': 'షెజ్వాన్ నూడిల్స్',
     'description': 'Spicy schezwan flavored noodles',
     'categoryId': 'cat_noodles',
     'price': 40.0,
@@ -222,6 +227,7 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_schezwan_noodles_mix',
     'name': 'Schezwan Noodles Mix',
+    'teluguName': 'షెజ్వాన్ నూడిల్స్ మిక్స్',
     'description': 'Spicy schezwan noodles with mixed vegetables',
     'categoryId': 'cat_noodles',
     'price': 50.0,
@@ -233,18 +239,10 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_pastha',
     'name': 'Pastha',
+    'teluguName': 'పాస్తా',
     'description': 'Indian style pasta dish',
     'categoryId': 'cat_appetizers',
     'price': 45.0,
-    'inStock': true,
-    'imageUrl': '',
-  },
-  {
-    'id': 'item_pastha_mix',
-    'name': 'Pastha Mix',
-    'description': 'Mixed pasta varieties with special sauce',
-    'categoryId': 'cat_appetizers',
-    'price': 55.0,
     'inStock': true,
     'imageUrl': '',
   },
@@ -253,6 +251,7 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_sprite',
     'name': 'Sprite',
+    'teluguName': 'స్ప్రైట్',
     'description': 'Refreshing lemon-lime soft drink',
     'categoryId': 'cat_beverages',
     'price': 20.0,
@@ -262,6 +261,7 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_mountain_dew',
     'name': 'Mountain Dew',
+    'teluguName': 'మౌంటెన్ డ్యూ',
     'description': 'Citrus-flavored soft drink',
     'categoryId': 'cat_beverages',
     'price': 20.0,
@@ -271,6 +271,7 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_thumbsup',
     'name': 'Thumbs Up',
+    'teluguName': 'థంబ్స్ అప్',
     'description': 'Strong cola flavor soft drink',
     'categoryId': 'cat_beverages',
     'price': 20.0,
@@ -280,6 +281,7 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_pepsi',
     'name': 'Pepsi',
+    'teluguName': 'పెప్సీ',
     'description': 'Classic cola soft drink',
     'categoryId': 'cat_beverages',
     'price': 20.0,
@@ -289,6 +291,7 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_fanta',
     'name': 'Fanta',
+    'teluguName': 'ఫాంటా',
     'description': 'Orange flavored soft drink',
     'categoryId': 'cat_beverages',
     'price': 20.0,
@@ -298,6 +301,7 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_limca',
     'name': 'Limca',
+    'teluguName': 'లిమ్కా',
     'description': 'Lemon-lime flavored soft drink',
     'categoryId': 'cat_beverages',
     'price': 20.0,
@@ -307,6 +311,7 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_water',
     'name': 'Mineral Water',
+    'teluguName': 'మినరల్ వాటర్',
     'description': 'Bottled drinking water',
     'categoryId': 'cat_beverages',
     'price': 20.0,
@@ -316,6 +321,7 @@ final List<Map<String, dynamic>> menuItemsData = [
   {
     'id': 'item_sting',
     'name': 'Sting',
+    'teluguName': 'స్టింగ్',
     'description': 'Energy drink',
     'categoryId': 'cat_beverages',
     'price': 20.0,

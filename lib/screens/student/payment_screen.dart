@@ -55,24 +55,29 @@ class _PaymentPageState extends State<PaymentPage> {
     final user = _auth.currentUser;
     if (user != null) {
       // Save payment details
+      // Step 1: Save the order first
+      final docRef = await FirebaseFirestore.instance.collection('canteenOrders').add({
+        'items': widget.order.items,
+        'total': widget.order.total,
+        'location': widget.order.location,
+        'status': 'Pending',
+        'time': FieldValue.serverTimestamp(),
+        'userId': user.uid, // ✅ Needed for Option 1 in PreviousOrdersPage
+      });
+
+// Step 2: Save payment with Firestore order ID
       await FirebaseFirestore.instance.collection('payments').doc(response.paymentId).set({
         'userId': user.uid,
         'paymentId': response.paymentId,
-        'orderId': response.orderId,
+        'orderId': docRef.id, // ✅ Save actual Firestore document ID
         'signature': response.signature,
         'amount': widget.amountInPaise / 100,
         'status': 'success',
         'timestamp': FieldValue.serverTimestamp(),
       });
 
-      // Add the order and get the document ID
-      final docRef = await FirebaseFirestore.instance.collection('canteenOrders').add({
-        'items': widget.order.items,
-        'total': widget.order.total,
-        'location': widget.order.location,
-        'status': 'Pending', // ✅ enforce default status
-        'time': FieldValue.serverTimestamp(),
-      });
+
+
 
 
       // Clear cart

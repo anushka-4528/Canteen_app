@@ -37,13 +37,13 @@ class _HomeScreenState extends State<HomeScreen> {
       menuService.getItemsByCategory(menuItems, _categoryId);
 
       final List<String> popularItemIds = [
-        '408wqRpjxhze9t0wLO26',
-        '6WKCpJ6Liw8sDkJkvP7X',
-        '7im7G4fO3NXP4F2L4RRK',
-        '0P4YOGHbq9S1akpVDjwt',
-        'IYtmAWqO9RaUEPAr1qsq',
-        'J09AhL4Y4brhxYTEuHTz',
-        'A66yziEDqcEGuvEMcx75',
+        'item_paneer_tikka',
+        'item_noodles_mix',
+        'item_meals',
+        'item_mix_fried_rice',
+        'item_shanghai_roll',
+        'item_veg_biryani',
+        'item_pasta',
       ];
       menuService.getPopularItems(popularItemIds);
 

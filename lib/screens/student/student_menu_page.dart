@@ -145,7 +145,6 @@ class _StudentMenuScreenState extends State<StudentMenuScreen> {
         final quantity = cartItem.isNotEmpty ? cartItem['quantity'] ?? 0 : 0;
 
         // Get inStock status directly from the MenuItem object
-        // Assuming your MenuItem model has an inStock field from Firestore
         final isInStock = item.inStock;
 
         return Card(
@@ -211,7 +210,7 @@ class _StudentMenuScreenState extends State<StudentMenuScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          // Favorite Icon - Now first
+                          // Favorite Icon
                           Container(
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
@@ -229,7 +228,7 @@ class _StudentMenuScreenState extends State<StudentMenuScreen> {
                             ),
                           ),
 
-                          // Add to cart button or quantity controls - Now second
+                          // Add to cart button or quantity controls
                           quantity > 0
                               ? Container(
                             decoration: BoxDecoration(
@@ -239,7 +238,10 @@ class _StudentMenuScreenState extends State<StudentMenuScreen> {
                             child: Row(
                               children: [
                                 InkWell(
-                                  onTap: () => cartService.decreaseQuantity(item.id),
+                                  onTap: () async {
+                                    print('Decrease quantity for item: ${item.id}'); // Debug log
+                                    await cartService.decreaseQuantity(item.id);
+                                  },
                                   child: Container(
                                     decoration: BoxDecoration(
                                       color: Color(0xFFEEEEEE),
@@ -266,7 +268,10 @@ class _StudentMenuScreenState extends State<StudentMenuScreen> {
                                   ),
                                 ),
                                 InkWell(
-                                  onTap: () => cartService.increaseQuantity(item.id),
+                                  onTap: () async {
+                                    print('Increase quantity for item: ${item.id}'); // Debug log
+                                    await cartService.increaseQuantity(item.id);
+                                  },
                                   child: Container(
                                     decoration: BoxDecoration(
                                       color: Color(0xFFEEEEEE),
@@ -285,11 +290,37 @@ class _StudentMenuScreenState extends State<StudentMenuScreen> {
                           )
                               : ElevatedButton(
                             onPressed: isInStock
-                                ? () => cartService.addItemToCart({
-                              'id': item.id,
-                              'name': item.name,
-                              'price': item.price,
-                            })
+                                ? () async {
+                              print('Add to cart button pressed for item: ${item.name}'); // Debug log
+
+                              try {
+                                await cartService.addItemToCart({
+                                  'id': item.id,
+                                  'name': item.name,
+                                  'price': item.price,
+                                   // Include image if available
+                                });
+
+                                // Show success feedback
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('${item.name} added to cart!'),
+                                    duration: Duration(seconds: 2),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                              } catch (e) {
+                                print('Error adding to cart: $e');
+                                // Show error feedback
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Failed to add item to cart'),
+                                    duration: Duration(seconds: 2),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            }
                                 : null,
                             child: Text('Add to Cart'),
                             style: ElevatedButton.styleFrom(

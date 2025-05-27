@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class MenuItem {
-   String id;
+  String id;
   final String name;
   final String description;
   final String categoryId;
@@ -24,7 +24,8 @@ class MenuItem {
       id: id,
       name: data['name'] ?? '',
       description: data['description'] ?? '',
-      translatedName: data['translatedName'] ?? '',
+      // Fix: Check for both 'teluguName' and 'translatedName' fields
+      translatedName: data['teluguName'] ?? data['translatedName'] ?? '',
       categoryId: data['categoryId'] ?? '',
       inStock: data['inStock'] ?? true,
       price: (data['price'] ?? 0).toDouble(),
@@ -35,7 +36,7 @@ class MenuItem {
     return {
       'name': name,
       'description': description,
-      'translatedName': translatedName,
+      'teluguName': translatedName, // Store as 'teluguName' to match Firestore
       'categoryId': categoryId,
       'inStock': inStock,
       'price': price,

@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
+import '../../providers/language_provider.dart';
 
 class TransactionsPage extends StatefulWidget {
   const TransactionsPage({Key? key}) : super(key: key);
@@ -13,6 +15,16 @@ class _TransactionsPageState extends State<TransactionsPage> {
   List<DocumentSnapshot> _transactions = [];
   Map<String, double> _dailyTotals = {};
   final Color primaryColor = const Color(0xFF757373);
+
+  // Telugu translations for UI elements
+  final Map<String, String> _translations = {
+    'Transactions': 'లావాదేవీలు',
+    'User': 'యూజర్',
+  };
+
+  String _translate(String text, bool isTelugu) {
+    return isTelugu ? (_translations[text] ?? text) : text;
+  }
 
   @override
   void initState() {
@@ -48,11 +60,14 @@ class _TransactionsPageState extends State<TransactionsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    final bool isTelugu = languageProvider.isTelugu;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Transactions',
-          style: TextStyle(
+        title: Text(
+          _translate('Transactions', isTelugu),
+          style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
@@ -78,14 +93,14 @@ class _TransactionsPageState extends State<TransactionsPage> {
             return txnDate == date;
           }).toList();
 
-          return _buildDailyTransactions(date, dailyTotal, txnsForDate);
+          return _buildDailyTransactions(date, dailyTotal, txnsForDate, isTelugu);
         },
       ),
     );
   }
 
   Widget _buildDailyTransactions(
-      String date, double dailyTotal, List<DocumentSnapshot> txns) {
+      String date, double dailyTotal, List<DocumentSnapshot> txns, bool isTelugu) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -107,7 +122,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
               Row(
                 children: [
                   const Icon(
-                    Icons.add, // Changed from add_circle_outline
+                    Icons.add,
                     color: Colors.blue,
                     size: 20,
                   ),
@@ -127,7 +142,7 @@ class _TransactionsPageState extends State<TransactionsPage> {
         ),
         ...txns.map((txn) {
           final amount = txn['amount'] as num? ?? 0;
-          final userId = txn['userId'] ?? 'User';
+          final userId = txn['userId'] ?? _translate('User', isTelugu);
 
           return ListTile(
             leading: const CircleAvatar(

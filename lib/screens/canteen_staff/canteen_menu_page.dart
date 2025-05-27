@@ -214,7 +214,7 @@ class _CanteenMenuPageState extends State<CanteenMenuPage> {
 
   void _showAddMenuItemDialog(BuildContext context) async {
     final _nameController = TextEditingController();
-
+    final _teluguNameController = TextEditingController(); // Added Telugu name controller
     final _descController = TextEditingController();
     final _priceController = TextEditingController();
     String? _selectedCategory;
@@ -285,7 +285,7 @@ class _CanteenMenuPageState extends State<CanteenMenuPage> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                // Name Input Field
+                // Name Input Field (English)
                 TextField(
                   controller: _nameController,
                   decoration: InputDecoration(
@@ -303,7 +303,26 @@ class _CanteenMenuPageState extends State<CanteenMenuPage> {
                   ),
                 ),
                 const SizedBox(height: 16),
-
+                // Telugu Name Input Field
+                TextField(
+                  controller: _teluguNameController,
+                  decoration: InputDecoration(
+                    labelText: 'Item Name (Telugu)',
+                    labelStyle: TextStyle(color: primaryColor),
+                    hintText: 'తెలుగులో వంటకం పేరు',
+                    hintStyle: TextStyle(color: Colors.grey[400]),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: primaryColor),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                ),
+                const SizedBox(height: 16),
                 // Description Input Field
                 TextField(
                   controller: _descController,
@@ -382,7 +401,7 @@ class _CanteenMenuPageState extends State<CanteenMenuPage> {
               onPressed: () async {
                 final service = Provider.of<CanteenMenuService>(context, listen: false);
                 final name = _nameController.text.trim();
-
+                final teluguName = _teluguNameController.text.trim();
                 final desc = _descController.text.trim();
                 final price = double.tryParse(_priceController.text.trim()) ?? 0;
 
@@ -409,7 +428,7 @@ class _CanteenMenuPageState extends State<CanteenMenuPage> {
                   categoryId: _selectedCategory!,
                   price: price,
                   inStock: _inStock,
-                  translatedName: name, // Use same name for now, translation can be added later
+                  translatedName: teluguName.isNotEmpty ? teluguName : name, // Use Telugu name if provided, otherwise fallback to English
                 );
 
                 try {

@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' as fs;
 
 class Order {
   final String id;
@@ -6,7 +6,8 @@ class Order {
   final double total;
   final String location;
   final String status;
-  final Timestamp? time;
+  final fs.Timestamp? time;  // Corrected to 'fs.Timestamp'
+  final String userId;  // Add userId here
 
   Order({
     required this.id,
@@ -15,9 +16,10 @@ class Order {
     required this.location,
     required this.status,
     this.time,
+    required this.userId,  // Add userId to the constructor
   });
 
-  factory Order.fromFirestore(DocumentSnapshot doc) {
+  factory Order.fromFirestore(fs.DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return Order(
       id: doc.id,
@@ -25,7 +27,8 @@ class Order {
       total: (data['total'] ?? 0).toDouble(),
       location: data['location'] ?? '',
       status: data['status'] ?? '',
-      time: data['time'],
+      time: data['time'],  // 'time' from Firestore
+      userId: data['userId'] ?? '',  // 'userId' from Firestore
     );
   }
 }

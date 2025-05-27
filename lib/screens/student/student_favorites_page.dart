@@ -50,7 +50,8 @@ class FavoritesScreen extends StatelessWidget {
               orElse: () => {},
             );
             final quantity = cartItem.isNotEmpty ? cartItem['quantity'] ?? 0 : 0;
-            final isInStock = item.inStock; // Get inStock status from the MenuItem object
+            // FIX: Use menuService.isInStock() instead of item.inStock for consistency
+            final isInStock = menuService.isInStock(item.id);
 
             return Card(
               margin: EdgeInsets.only(bottom: 16),
@@ -143,10 +144,10 @@ class FavoritesScreen extends StatelessWidget {
                                 child: Row(
                                   children: [
                                     InkWell(
-                                      onTap: () => cartService.decreaseQuantity(item.id),
+                                      onTap: isInStock ? () => cartService.decreaseQuantity(item.id) : null,
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          color: Color(0xFFEEEEEE),
+                                          color: isInStock ? Color(0xFFEEEEEE) : Colors.grey[300],
                                           borderRadius: BorderRadius.only(
                                             topLeft: Radius.circular(7),
                                             bottomLeft: Radius.circular(7),
@@ -154,7 +155,11 @@ class FavoritesScreen extends StatelessWidget {
                                         ),
                                         width: 36,
                                         height: 36,
-                                        child: Icon(Icons.remove, color: Color(0xFF757373), size: 20),
+                                        child: Icon(
+                                            Icons.remove,
+                                            color: isInStock ? Color(0xFF757373) : Colors.grey[500],
+                                            size: 20
+                                        ),
                                       ),
                                     ),
                                     Container(
@@ -166,14 +171,15 @@ class FavoritesScreen extends StatelessWidget {
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
+                                          color: isInStock ? Colors.black : Colors.grey[600],
                                         ),
                                       ),
                                     ),
                                     InkWell(
-                                      onTap: () => cartService.increaseQuantity(item.id),
+                                      onTap: isInStock ? () => cartService.increaseQuantity(item.id) : null,
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          color: Color(0xFFEEEEEE),
+                                          color: isInStock ? Color(0xFFEEEEEE) : Colors.grey[300],
                                           borderRadius: BorderRadius.only(
                                             topRight: Radius.circular(7),
                                             bottomRight: Radius.circular(7),
@@ -181,7 +187,11 @@ class FavoritesScreen extends StatelessWidget {
                                         ),
                                         width: 36,
                                         height: 36,
-                                        child: Icon(Icons.add, color: Color(0xFF757373), size: 20),
+                                        child: Icon(
+                                            Icons.add,
+                                            color: isInStock ? Color(0xFF757373) : Colors.grey[500],
+                                            size: 20
+                                        ),
                                       ),
                                     ),
                                   ],

@@ -23,7 +23,6 @@ class _PreviousOrdersPageState extends State<PreviousOrdersPage> {
     _fetchOrders();
   }
 
-  // Fetch orders from Firestore
   Future<void> _fetchOrders() async {
     setState(() {
       _isLoading = true;
@@ -40,30 +39,9 @@ class _PreviousOrdersPageState extends State<PreviousOrdersPage> {
         return;
       }
 
-      // Step 1: Get payment records for current user
-      final paymentSnapshot = await _firestore
-          .collection('payment')
-          .where('userId', isEqualTo: user.uid)
-          .get();
-
-      final orderIds = paymentSnapshot.docs
-          .map((doc) => doc.data()['orderId'] as String?)
-          .where((id) => id != null && id!.isNotEmpty)
-          .cast<String>()
-          .toList();
-
-      if (orderIds.isEmpty) {
-        setState(() {
-          _orders = [];
-          _isLoading = false;
-        });
-        return;
-      }
-
-      // Step 2: Fetch corresponding orders from canteenOrders
       final ordersSnapshot = await _firestore
           .collection('canteenOrders')
-          .where(FieldPath.documentId, whereIn: orderIds)
+          .where('userId', isEqualTo: user.uid)
           .orderBy('time', descending: true)
           .get();
 
