@@ -50,6 +50,18 @@ class _CanteenHomePageState extends State<CanteenHomePage> {
     return isTelugu ? (_translations[text] ?? text) : text;
   }
 
+  // Helper method to get start and end of today
+  Map<String, Timestamp> _getTodayRange() {
+    final now = DateTime.now();
+    final startOfDay = DateTime(now.year, now.month, now.day, 0, 0, 0);
+    final endOfDay = DateTime(now.year, now.month, now.day, 23, 59, 59);
+
+    return {
+      'start': Timestamp.fromDate(startOfDay),
+      'end': Timestamp.fromDate(endOfDay),
+    };
+  }
+
   Future<void> _updateOrderStatus(String orderId, String newStatus) async {
     try {
       await FirebaseFirestore.instance
@@ -272,6 +284,7 @@ class _CanteenHomePageState extends State<CanteenHomePage> {
   Widget build(BuildContext context) {
     final languageProvider = Provider.of<LanguageProvider>(context);
     final bool isTelugu = languageProvider.isTelugu;
+    final todayRange = _getTodayRange();
 
     return Scaffold(
       appBar: AppBar(
@@ -382,6 +395,8 @@ class _CanteenHomePageState extends State<CanteenHomePage> {
               stream: FirebaseFirestore.instance
                   .collection('canteenOrders')
                   .where('status', whereIn: ['Pending', 'Ready'])
+                  .where('time', isGreaterThanOrEqualTo: todayRange['start'])
+                  .where('time', isLessThanOrEqualTo: todayRange['end'])
                   .orderBy('time', descending: true)
                   .limit(10)
                   .snapshots(),

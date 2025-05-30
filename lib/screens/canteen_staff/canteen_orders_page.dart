@@ -53,6 +53,17 @@ class _CanteenOrdersPageState extends State<CanteenOrdersPage> {
     return isTelugu ? (_translations[text] ?? text) : text;
   }
 
+  // Get start and end of current day
+  DateTime get _startOfDay {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day);
+  }
+
+  DateTime get _endOfDay {
+    final now = DateTime.now();
+    return DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
+  }
+
   Future<void> _updateOrderStatus(String orderId, String newStatus) async {
     try {
       await FirebaseFirestore.instance
@@ -125,6 +136,8 @@ class _CanteenOrdersPageState extends State<CanteenOrdersPage> {
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection('canteenOrders')
+                    .where('time', isGreaterThanOrEqualTo: Timestamp.fromDate(_startOfDay))
+                    .where('time', isLessThanOrEqualTo: Timestamp.fromDate(_endOfDay))
                     .orderBy('time', descending: true)
                     .snapshots(),
                 builder: (context, snapshot) {
